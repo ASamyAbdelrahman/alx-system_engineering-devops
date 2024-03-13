@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#Double The Number of Servers
+sudo apt-get update
+sudo apt-get install -y nginx
+echo "Hello World!" > /var/www/html/index.html
+echo "Ceci n'est pas une page" > /var/www/html/404.html
+
+echo "server {
+   listen 80 default_server;
+   listen [::]:80 default_server;
+
+   root /var/www/html;
+   index index.html;
+   location /redirect_me {
+      return 301 https://www.linkedin.com/in/samyabdelrahman;
+   }
+   error_page 404 /404.html;
+   location = /404.html{
+      internal;
+   }
+}" > /etc/nginx/sites-available/default
+
+#Insert after the line that contains include /etc/nginx/sites-enabled the line
+#add_header X-Served-By $Hostname
+if ! grep -q 'add_header X-Served-By' /etc/nginx/nginx.conf
+then
+   sed -i "s/include \/etc\/nginx\/sites-enabled\/\*;/include \/etc\/nginx\/sites-enabled\/\*;\n\tadd_header X-Served-By \"$HOSTNAME\";/" /etc/nginx/nginx.conf
+fi
+sudo service nginx restart
